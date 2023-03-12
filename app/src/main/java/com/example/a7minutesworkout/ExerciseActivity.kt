@@ -3,12 +3,15 @@ package com.example.a7minutesworkout
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.example.a7minutesworkout.databinding.ActivityExerciseBinding
-import java.util.Objects
+import java.util.*
+import kotlin.collections.ArrayList
 
-class ExerciseActivity : AppCompatActivity() {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var binding:ActivityExerciseBinding? = null
     private var restTimer: CountDownTimer? = null
     private var restProgress: Int = 0
@@ -16,8 +19,10 @@ class ExerciseActivity : AppCompatActivity() {
     private var exerciseTimer: CountDownTimer? = null
     private var exerciseProgress: Int = 0
 
-    private var exercistList: ArrayList<ExerciseModel>? = null
+    private var exerciseList: ArrayList<ExerciseModel>? = null
     private var currentExercisePosition = -1
+
+    private var tts:TextToSpeech? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +36,9 @@ class ExerciseActivity : AppCompatActivity() {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
 
-        exercistList = Constants.defaultExerciseList()
+        exerciseList = Constants.defaultExerciseList()
+
+        tts = TextToSpeech(this,this)
 
 
         binding?.toolbarExercise?.setNavigationOnClickListener{
@@ -51,6 +58,12 @@ class ExerciseActivity : AppCompatActivity() {
             exerciseTimer?.cancel()
             exerciseProgress = 0
         }
+
+        if(tts!=null){
+            tts?.stop()
+            tts?.shutdown()
+            tts = null
+        }
         binding = null
     }
 
@@ -59,7 +72,7 @@ class ExerciseActivity : AppCompatActivity() {
         binding?.tvTitle?.visibility = View.VISIBLE
         binding?.upcomingLabel?.visibility = View.VISIBLE
         binding?.tvUpcomingExerciseName?.visibility = View.VISIBLE
-        binding?.tvUpcomingExerciseName?.text = exercistList!![currentExercisePosition+1].getName()
+        binding?.tvUpcomingExerciseName?.text = exerciseList!![currentExercisePosition+1].getName()
 
         binding?.tvExerciseName?.visibility = View.INVISIBLE
         binding?.flExerciseView?.visibility = View.INVISIBLE
@@ -105,8 +118,10 @@ class ExerciseActivity : AppCompatActivity() {
             exerciseProgress = 0
         }
 
-        binding?.ivImage?.setImageResource(exercistList!![currentExercisePosition].getImage())
-        binding?.tvExerciseName?.text = exercistList!![currentExercisePosition].getName()
+        speakOut(exerciseList!![currentExercisePosition].getName())
+
+        binding?.ivImage?.setImageResource(exerciseList!![currentExercisePosition].getImage())
+        binding?.tvExerciseName?.text = exerciseList!![currentExercisePosition].getName()
 
 
         setExerciseProgressBar()
@@ -124,7 +139,7 @@ class ExerciseActivity : AppCompatActivity() {
             }
 
             override fun onFinish() {
-                if(currentExercisePosition< exercistList!!.size-1){
+                if(currentExercisePosition< exerciseList!!.size-1){
                     setupRestView()
                 }else{
                     Toast.makeText(this@ExerciseActivity,
@@ -132,6 +147,21 @@ class ExerciseActivity : AppCompatActivity() {
                 }
             }
         }.start()
+    }
+
+    override fun onInit(status: Int) {
+        if(status==TextToSpeech.SUCCESS){
+            val result = tts?.setLanguage(Locale.US)
+            if(result==TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
+                Log.e("TTS","The language is not compatible")
+            }
+        }else{
+            Log.e("TTS","Initialization Failed!")
+        }
+    }
+
+    private fun speakOut(text:String){
+        tts!!.speak(text,TextToSpeech.QUEUE_FLUSH, null,"")
     }
 
 
