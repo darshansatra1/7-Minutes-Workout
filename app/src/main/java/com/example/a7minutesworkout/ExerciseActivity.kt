@@ -57,6 +57,9 @@ class ExerciseActivity : AppCompatActivity() {
     private fun setupRestView(){
         binding?.flRestView?.visibility = View.VISIBLE
         binding?.tvTitle?.visibility = View.VISIBLE
+        binding?.upcomingLabel?.visibility = View.VISIBLE
+        binding?.tvUpcomingExerciseName?.visibility = View.VISIBLE
+        binding?.tvUpcomingExerciseName?.text = exercistList!![currentExercisePosition+1].getName()
 
         binding?.tvExerciseName?.visibility = View.INVISIBLE
         binding?.flExerciseView?.visibility = View.INVISIBLE
@@ -89,6 +92,8 @@ class ExerciseActivity : AppCompatActivity() {
     private fun setupExerciseView(){
         binding?.flRestView?.visibility = View.INVISIBLE
         binding?.tvTitle?.visibility = View.INVISIBLE
+        binding?.upcomingLabel?.visibility = View.INVISIBLE
+        binding?.tvUpcomingExerciseName?.visibility = View.INVISIBLE
 
         binding?.tvExerciseName?.visibility = View.VISIBLE
         binding?.flExerciseView?.visibility = View.VISIBLE
