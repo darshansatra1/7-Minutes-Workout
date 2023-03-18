@@ -18,7 +18,11 @@ class MainActivity : AppCompatActivity() {
         binding?.flStart?.setOnClickListener{
             val intent = Intent(this@MainActivity, ExerciseActivity::class.java)
             startActivity(intent)
+        }
 
+        binding?.flBMI?.setOnClickListener{
+            val intent = Intent(this@MainActivity, BMIActivity::class.java)
+            startActivity(intent)
         }
     }
 
